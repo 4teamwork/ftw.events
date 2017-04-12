@@ -28,14 +28,14 @@
                                  <img tal:replace="structure pane/image_tag"/>
                             </div>
                             <div class="sliderText">
-                                <p tal:content="structure pane/date" />
+                                <p class="eventdate" tal:content="structure pane/date" />
                                 <p tal:condition="pane/show_title"
                                    tal:content="pane/title"
                                    tal:attributes="class pane/title_css_classes"/>
                                 <span tal:condition="pane/text"
                                       tal:replace="structure pane/text"/>
 
-                                <p>
+                                <p class="eventlink">
                                     <a tal:attributes="href pane/link_url">
                                         &gt; Zur Ausstellung
                                     </a>
