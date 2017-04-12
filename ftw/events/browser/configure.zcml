@@ -26,4 +26,18 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="ftw.events.interfaces.IEventListingBlock"
+        name="slider_view"
+        permission="zope2.View"
+        class=".eventlistingblock.SliderView"
+        />
+
+    <adapter
+        factory=".eventlistingblock.EventlistingBlockActions"
+        name="ftw-events-eventlistingblock-actions"
+        for="*
+             ftw.events.interfaces.IFTWEventsLayer"
+        />
+
 </configure>

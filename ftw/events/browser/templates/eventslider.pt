@@ -1,0 +1,50 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      tal:omit-tag="python: 1"
+      i18n:domain="ftw.sliderblock">
+
+    <h2 tal:content="here/Title"
+        tal:condition="here/show_title | python: True" />
+
+    <tal:slider define="panes view/get_template_data;">
+
+        <div tal:condition="python: view.can_add() and not panes"
+             tal:define="folder_contents_url string:${context/absolute_url}/folder_contents;"
+             i18n:translate="empty_sliderblock_label">This SliderBlock is empty. Please add some SliderPanes through <tal:href i18n:name="folder_contents_url" tal:content="folder_contents_url"></tal:href>.</div>
+        <div tal:condition="panes"
+             tal:attributes="class string:sliderWrapper; id string:uid_${context/UID}; data-settings view/get_slick_config">
+            <div class="sliderPanes">
+                <div tal:repeat="pane panes" class="sliderPane">
+                    <tal:pane>
+
+                        <a href="./sl-ajax-inner-edit-view"
+                           tal:condition="view/can_add"
+                           class="inneredit"
+                           tal:attributes="data-uid pane/uid"
+                           title="Edit image directly"
+                           i18n:attributes="title"></a>
+
+                            <div class="sliderImage">
+                                 <img tal:replace="structure pane/image_tag"/>
+                            </div>
+                            <div class="sliderText">
+                                <p tal:content="structure pane/date" />
+                                <p tal:condition="pane/show_title"
+                                   tal:content="pane/title"
+                                   tal:attributes="class pane/title_css_classes"/>
+                                <span tal:condition="pane/text"
+                                      tal:replace="structure pane/text"/>
+
+                                <p>
+                                    <a tal:attributes="href pane/link_url">
+                                        &gt; Zur Ausstellung
+                                    </a>
+                                </p>
+                            </div>
+                      </tal:pane>
+                </div>
+            </div>
+        </div>
+    </tal:slider>
+
+</html>

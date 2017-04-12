@@ -152,3 +152,85 @@ class EventListingBlockView(BaseBlock):
             'location': obj.location or '',
         }
         return item
+
+
+from ftw.sliderblock.browser.sliderblock import SliderBlockView
+from ftw.simplelayout.browser.actions import DefaultActions
+from collections import OrderedDict
+import json
+
+
+class SliderView(SliderBlockView, EventListingBlockView):
+    template = ViewPageTemplateFile('templates/eventslider.pt')
+
+    def panes(self):
+        return self.get_items()
+
+    def get_slick_config(self):
+        # The config value may contain unwanted new lines. Let's remove them
+        # by loading and dumping as json.
+        config = json.loads('{"autoplay": false, "dots": true, "adaptiveHeight": true}')
+        config = self.extend_translations(config)
+        return json.dumps(config)
+
+    def get_template_data(self):
+        data = []
+        for item in self.panes():
+            event = item['brain'].getObject()
+    
+            # Copied from "plone.app.event.portlets.portlet_events.Renderer#formatted_date".
+            provider = getMultiAdapter(
+                (self.context, self.request, self),
+                IContentProvider, name='formatted_date'
+            )
+            date_snippet = provider(event)
+
+            data.append({
+                'uid': event.UID(),
+                'title': event.title,
+                # 'show_title': event.show_title,
+                'show_title': True,
+                'title_css_classes': 'eventTitle',
+                'text': event.Description(),
+                # 'show_event_caption': event.show_title or event.text,
+                'show_event_caption': True,
+                'image_tag': self.get_image_tag(event),
+                'link_url': event.absolute_url(),
+                'date': date_snippet
+            })
+        return data
+
+    def get_image_tag(self, event):
+        view = event.restrictedTraverse('@@leadimage')
+        if view.has_image:
+            scaler = view.block.restrictedTraverse('@@images')
+            return scaler.scale('image', scale='sliderblock', direction="thumbnail").tag()
+        else:
+            return ''
+
+class EventlistingBlockActions(DefaultActions):
+
+    def specific_actions(self):
+        actions = super(EventlistingBlockActions, self).specific_actions().items()
+
+        view_actions = [
+            ('defaultview', {
+                'class': 'icon-default-view server-action',
+                'title': translate(
+                    _(u'label_default_view', default=u'Standard Ansicht'),
+                    context=self.request),
+                'href': './sl-ajax-reload-block-view',
+                'data-view_name': 'block_view',
+            }),
+            ('teaserview', {
+                'class': 'icon-teaser-view server-action',
+                'title': translate(
+                    _(u'label_teaser_view',
+                      default=u'Teaser Block Ansicht'),
+                    context=self.request),
+                'href': './sl-ajax-reload-block-view',
+                'data-view_name': 'slider_view',
+            })
+        ]
+
+        return OrderedDict(actions + view_actions)
